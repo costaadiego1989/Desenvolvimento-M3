@@ -1,1 +1,28 @@
 @import "reset";
+
+header {
+    width: 100vw;
+    height: 2.937rem;
+    display: flex;
+    border-bottom: 2px solid #C7C7C7;
+    align-items: center;
+    justify-content: center;
+
+    .header-container {
+        width: 65rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .item-cart-count {
+        width: 0.75rem;
+        height: 0.75rem;
+        background-color: #00C0EE;
+        border-radius: 1rem;
+        padding: 0.5rem;
+        font-size: 0.625rem;
+        color: #fff;
+    }
+}
