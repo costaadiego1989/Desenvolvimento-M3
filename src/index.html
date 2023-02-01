@@ -7,8 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Desenvolvedor M3</title>
-    <link href="./main.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto&display=swap" rel="stylesheet">
+    <link href="main.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&family=Roboto&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
@@ -29,7 +32,142 @@
         </div>
       </div>
     </header>
+
+    <main>
+      <div class="main-container">
+        <div>
+          <h2>Blusas</h2>
+        </div>
+        <div>
+          <div class="select">
+            <select>
+              <option value="" selected disabled hidden>Ordenar por:</option>
+              <option value="">Mais recente</option>
+              <option value="">Maior preço</option>
+              <option value="">Menor preço</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="shopping-container">
+        <aside>
+          <div class="colors-container">
+            <h3>CORES</h3>
+            <div>
+              <input type="checkbox" id="amarelo" name="amarelo" />
+              <label for="amarelo">Amarelo</label>
+            </div>
+            <div>
+              <input type="checkbox" id="azul" name="azul" />
+              <label for="azul">Azul</label>
+            </div>
+            <div>
+              <input type="checkbox" id="branco" name="branco" />
+              <label for="branco">Branco</label>
+            </div>
+            <div>
+              <input type="checkbox" id="cinza" name="cinza" />
+              <label for="cinza">Cinza</label>
+            </div>
+            <div>
+              <input type="checkbox" id="laranja" name="laranja" />
+              <label for="laranja">Laranja</label>
+            </div>
+            <a href="#">Ver todas as cores <img src="./img/seta.png" /></a>
+          </div>
+
+          <div class="sizes-container">
+            <h3>TAMANHOS</h3>
+            <div>
+              <span>P</span>
+              <span>M</span>
+              <span>G</span>
+              <span>GG</span>
+              <span>U</span>
+              <span>36</span>
+              <span>38</span>
+              <span>40</span>
+              <span>36</span>
+              <span>38</span>
+              <span>40</span>
+            </div>
+          </div>
+
+          <div class="colors-container">
+            <h3>FAIXA DE PREÇO</h3>
+            <div>
+              <input type="checkbox" id="zeroToFifty" name="zeroToFifty" />
+              <label for="zeroToFifty">de R$0 até R$50</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="fiftyOneToOneHundredAndFifty"
+                name="fiftyOneToOneHundredAndFifty"
+              />
+              <label for="fiftyOneToOneHundredAndFifty"
+                >de R$51 até R$150</label
+              >
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="oneHundredAndFiftyToThreeHundred"
+                name="oneHundredAndFiftyToThreeHundred"
+              />
+              <label for="oneHundredAndFiftyToThreeHundred"
+                >de R$151 até R$300</label
+              >
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="threeHundredOneToFiveHundred"
+                name="threeHundredOneToFiveHundred"
+              />
+              <label for="threeHundredOneToFiveHundred"
+                >de R$301 até R$500</label
+              >
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="aboveFiveHundred"
+                name="aboveFiveHundred"
+              />
+              <label for="aboveFiveHundred">a partir de R$500</label>
+            </div>
+          </div>
+        </aside>
+        <article>
+          <div>
+            <img src="./img/img_2.png" alt="">
+            <h3>Camiseta Estática</h3>
+            <p>R$ 59.90</p>
+            <p>em até 3x de 19.90</p>
+            <a href="#">COMPRAR</a>
+          </div>
+
+          <div>
+            <img src="./img/img_2.png" alt="">
+            <h3>Camiseta Estática</h3>
+            <p>R$ 59.90</p>
+            <p>em até 3x de 19.90</p>
+            <a href="#">COMPRAR</a>
+          </div>
+
+          <div>
+            <img src="./img/img_2.png" alt="">
+            <h3>Camiseta Estática</h3>
+            <p>R$ 59.90</p>
+            <p>em até 3x de 19.90</p>
+            <a href="#">COMPRAR</a>
+          </div>
+        </article>
+      </div>
+    </main>
   </body>
 
-  <script src="./bundle.js"></script>
+  <script src="bundle.js"></script>
 </html>
