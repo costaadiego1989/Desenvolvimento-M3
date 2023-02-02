@@ -12,13 +12,29 @@ async function fetchApi() {
     cache: "default",
   })
     .then((response) => response.json())
-    .then((data) => console.error(data));
+    .then((data) => data);
 
-  return req;
-};
+  let productsArray: Product[] = [];
 
-function main() {
-  console.log(serverUrl);
+  for (let products of req) {
+    productsArray.push(products);
+  }
+
+  var list = document.querySelector('.products').innerHTML;
+  
+  for (let product of productsArray) {
+     list = list + `<li>
+     <img src="${product.image}" alt="${product.name}" />
+     <h3>${product.name}</h3>
+     <p>R$${product.price.toFixed(2).toString().replace(".", ",")}</p>
+     <p>em até ${product.parcelamento[0]}x de R$${product.parcelamento[1].toFixed(2).toString().replace(".", ",")}</p>
+     <a href="#">COMPRAR</a>
+   </li>`
+     var list = document.querySelector('.products').innerHTML = list;
+  }
+
+  return list;
 }
+
 
 document.addEventListener("DOMContentLoaded", fetchApi);
