@@ -78,7 +78,22 @@ function renderColors(productsArray: Product[]) {
     attachUl.appendChild(li);
   }
 
+  var inputs = $('[type="checkbox"]');
+  inputs.on("click", function () {
+    inputs.get().forEach(function (el) {
+      el.checked = el == this && this.checked;
+    }, this);
+  });
 
+  $("#myCheckbox1")
+    .add("#myCheckbox2")
+    .add("#myCheckbox3")
+    .add("#myCheckbox4")
+    .add("#myCheckbox5")
+    .add("#myCheckbox6")
+    .on("change", function () {
+      handleFilterByColor(productsArray, this);
+    });
 }
 
 function renderSizes(productsArray: Product[]) {
