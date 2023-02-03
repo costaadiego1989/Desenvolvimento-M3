@@ -38,10 +38,46 @@ function renderProducts(productsArray: Product[]) {
 }
 
 function handleFilterByColor(productsArray: Product[], element: any) {
-
+  const products: Product[] = [];
+  const filterProduct = productsArray.find(
+    (product) => product.color === element.value
+  );
+  products.push(...products, filterProduct);
+  window.localStorage.setItem('filteredProducts', JSON.stringify(products));
+  const win: Window = window;
+  win.location = "/";
+  console.log("filterProduct", filterProduct);
 }
 
 function renderColors(productsArray: Product[]) {
+  const ul = document.createElement("ul");
+  const attachUl = document.querySelector(".productsColors").appendChild(ul);
+
+  const setColors = new Set();
+
+  const filteredProducts = productsArray.filter((product) => {
+    const duplicatedPerson = setColors.has(product.color);
+    setColors.add(product.color);
+    return !duplicatedPerson;
+  });
+
+  let count = 0;
+
+  for (let product of filteredProducts) {
+    let li: any = document.createElement("li");
+    li.classList.add("color");
+
+    li.innerHTML =
+      li.innerHTML +
+      `<li>
+        <input type="checkbox" id="myCheckbox${(count = count + 1)}" name="${product.color}"
+        value="${product.color}" data-set="${product.color}" />
+        <label for="${product.color}">${product.color}</label>
+      </li>`;
+
+    attachUl.appendChild(li);
+  }
+
 
 }
 
