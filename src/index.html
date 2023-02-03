@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/javascript" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -42,9 +43,9 @@
           <div class="select">
             <select>
               <option value="" selected disabled hidden>Ordenar por:</option>
-              <option value="">Mais recente</option>
-              <option value="">Maior preço</option>
-              <option value="">Menor preço</option>
+              <option value="newest">Mais recente</option>
+              <option value="biggestPrice">Maior preço</option>
+              <option value="lowerPrice">Menor preço</option>
             </select>
           </div>
         </div>
@@ -54,44 +55,13 @@
         <aside>
           <div class="colors-container">
             <h3>CORES</h3>
-            <div>
-              <input type="checkbox" id="amarelo" name="amarelo" />
-              <label for="amarelo">Amarelo</label>
-            </div>
-            <div>
-              <input type="checkbox" id="azul" name="azul" />
-              <label for="azul">Azul</label>
-            </div>
-            <div>
-              <input type="checkbox" id="branco" name="branco" />
-              <label for="branco">Branco</label>
-            </div>
-            <div>
-              <input type="checkbox" id="cinza" name="cinza" />
-              <label for="cinza">Cinza</label>
-            </div>
-            <div>
-              <input type="checkbox" id="laranja" name="laranja" />
-              <label for="laranja">Laranja</label>
-            </div>
+            <ul class="productsColors"></ul>
             <a href="#">Ver todas as cores <img src="./img/seta.png" /></a>
           </div>
 
           <div class="sizes-container">
             <h3>TAMANHOS</h3>
-            <div>
-              <span>P</span>
-              <span>M</span>
-              <span>G</span>
-              <span>GG</span>
-              <span>U</span>
-              <span>36</span>
-              <span>38</span>
-              <span>40</span>
-              <span>36</span>
-              <span>38</span>
-              <span>40</span>
-            </div>
+            <ul class="productsSizes"></ul>
           </div>
 
           <div class="colors-container">
@@ -141,8 +111,8 @@
           </div>
         </aside>
         <article>
-          <ul class="products"></ul>
-          <a href="#" class="btn-load-more">CARREGAR MAIS</a>
+          <div class="products"></div>
+          <a href="javascript:void(0)" id="load-more" class="btn-loadmore">CARREGAR MAIS</a>
         </article>
       </div>
     </main>
@@ -150,6 +120,10 @@
       <p>M3: IMPLANTAÇÃO DE E-COMMERCE V-TEX.</p>
     </footer>
   </body>
-
   <script src="bundle.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.6.3.js"
+    integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+    crossorigin="anonymous"
+  ></script>
 </html>

@@ -1,4 +1,5 @@
 export interface Product {
+  classList: any;
   id: string;
   name: string;
   price: number;
