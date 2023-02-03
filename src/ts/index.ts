@@ -25,6 +25,15 @@ function renderProducts(productsArray: Product[]) {
         .replace(".", ",")}</p>
       <a href="#">COMPRAR</a>
     `;
+
+    attachUl.appendChild(li);
+
+    $(".product").slice(9, 14).hide();
+    $(".btn-loadmore").on("click", () => {
+      $(".product").slice(0, 15).fadeIn();
+      $(this).fadeOut();
+      $(".btn-loadmore").hide();
+    });
   }
 }
 
