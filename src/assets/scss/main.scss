@@ -189,6 +189,7 @@ article {
 
   .btn-loadmore {
     display: flex;
+    z-index: 999;
     align-items: center;
     justify-content: center;
     width: 12.062rem !important;
@@ -211,8 +212,8 @@ article {
   }
 
   .products {
-    background-color: red;
     margin: 0 auto;
+
     ul {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -297,4 +298,8 @@ footer {
   margin: -1px;
   padding: 0;
   border: 0;
+}
+
+#shopping .open {
+  max-height: 2000px;
 }

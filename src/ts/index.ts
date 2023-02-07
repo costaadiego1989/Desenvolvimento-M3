@@ -52,14 +52,23 @@ function renderProducts(productsArray: Product[]) {
   const ul = document.createElement("ul");
   const attachUl = document.querySelector(".products").appendChild(ul);
 
-  const verifyIfKeyExistInLocalStorage = retrieve("selectedProduct");
-  console.log("verifyIfKeyExistInLocalStorage", verifyIfKeyExistInLocalStorage);
+  let renderFromLocalStorage;
 
-  const renderFromLocalStorage = verifyIfKeyExistInLocalStorage
-    ? renderFilteredProducts("selectedProduct")
-    : renderFilteredProducts("selectedSize");
+  if (retrieve("selectedProduct")) {
+    renderFromLocalStorage = renderFilteredProducts("selectedProduct");
+  } else if (retrieve("selectedSize")) {
+    renderFromLocalStorage = renderFilteredProducts("selectedSize");
+  } else if (retrieve("selectedPrice")) {
+    renderFromLocalStorage = renderFilteredProducts("selectedPrice");
+  } else if (retrieve("sortByNewest")) {
+    renderFromLocalStorage = renderFilteredProducts("sortByNewest");
+  } else if (retrieve("sortByBiggestPrice")) {
+    renderFromLocalStorage = renderFilteredProducts("sortByBiggestPrice");
+  } else if (retrieve("sortByLowerPrice")) {
+    renderFromLocalStorage = renderFilteredProducts("sortByLowerPrice");
+  }
 
-  for (let product of renderFromLocalStorage || !verifyIfKeyExistInLocalStorage && productsArray) {
+  for (let product of renderFromLocalStorage || productsArray) {
     const li: any = document.createElement("li");
     li.classList.add("product");
 
@@ -77,13 +86,6 @@ function renderProducts(productsArray: Product[]) {
     `;
 
     attachUl.appendChild(li);
-
-    $(".product").slice(9, 14).hide();
-    $(".btn-loadmore").on("click", () => {
-      $(".product").slice(0, 15).fadeIn();
-      $(this).fadeOut();
-      $(".btn-loadmore").hide();
-    });
   }
 }
 
@@ -103,6 +105,10 @@ function handleFilterByColor(productsArray: Product[], element: any) {
     renderFilteredProducts("selectedProduct");
     remove("selectedSize");
     remove("selectedPrice");
+    remove("sortByNewest");
+    remove("sortByLowerPrice");
+    remove("selectedBiggestPrice");
+
     reloadPage();
   }
 }
@@ -123,6 +129,10 @@ function handleFilterBySize(productsArray: Product[], element: any) {
     remove("selectedProduct");
     remove("selectedColor");
     remove("selectedPrice");
+    remove("sortByNewest");
+    remove("sortByLowerPrice");
+    remove("selectedBiggestPrice");
+
     reloadPage();
   }
 }
@@ -130,15 +140,14 @@ function handleFilterBySize(productsArray: Product[], element: any) {
 async function handleFilterByPrice(productsArray: Product[], element: any) {
   const products: Product[] = [];
 
-  console.log("element", element.value.split(","));
+  const valueFromCheckbox = element.value.split(",");
+  const filteredProducts = productsArray.filter(
+    (product) =>
+      product.price >= +valueFromCheckbox[0] &&
+      product.price <= +valueFromCheckbox[1]
+  );
 
-  const filterProduct = productsArray.filter((product) => {
-    return product.price >= element.innerHTML;
-  });
-
-  console.log("filterProduct", filterProduct)
-
-  products.push(...products.concat(filterProduct));
+  products.push(...products.concat(filteredProducts));
 
   persist("selectedPrice", products);
 
@@ -147,7 +156,85 @@ async function handleFilterByPrice(productsArray: Product[], element: any) {
     remove("selectedProduct");
     remove("selectedColor");
     remove("selectedSize");
+    remove("sortByNewest");
+    remove("sortByLowerPrice");
+    remove("selectedBiggestPrice");
+
     reloadPage();
+  }
+}
+
+async function handleFilterSortBy(inputValue: string) {
+  const productList = await fetchApi();
+
+  let sortByNewest;
+  let sortByBiggestPrice;
+  let sortByLowerPrice;
+
+  if (inputValue === "newest") {
+    sortByNewest = productList
+      .map((product) => product)
+      .sort((a, b) => {
+        if (a.date > b.date) return -1;
+        if (a.date < b.date) return 1;
+      });
+
+    persist("sortByNewest", sortByNewest);
+
+    if (retrieve("sortByNewest")) {
+      renderFilteredProducts("sortByNewest");
+      remove("selectedProduct");
+      remove("selectedColor");
+      remove("selectedSize");
+      remove("selectedPrice");
+      remove("sortByLowerPrice");
+      remove("sortByBiggestPrice");
+      reloadPage();
+    }
+  }
+
+  if (inputValue === "biggestPrice") {
+    sortByBiggestPrice = productList
+      .map((product) => product)
+      .sort((a, b) => {
+        if (a.price > b.price) return -1;
+        if (a.price < b.price) return 1;
+      });
+
+    persist("sortByBiggestPrice", sortByBiggestPrice);
+
+    if (retrieve("sortByBiggestPrice")) {
+      renderFilteredProducts("sortByBiggestPrice");
+      remove("selectedProduct");
+      remove("selectedColor");
+      remove("selectedSize");
+      remove("selectedPrice");
+      remove("sortByNewest");
+      remove("sortByLowerPrice");
+      reloadPage();
+    }
+  }
+
+  if (inputValue === "lowerPrice") {
+    sortByLowerPrice = productList
+      .map((product) => product)
+      .sort((a, b) => {
+        if (a.price > b.price) return 1;
+        if (a.price < b.price) return -1;
+      });
+
+    persist("sortByLowerPrice", sortByLowerPrice);
+
+    if (retrieve("sortByLowerPrice")) {
+      renderFilteredProducts("sortByLowerPrice");
+      remove("selectedProduct");
+      remove("selectedColor");
+      remove("selectedSize");
+      remove("selectedPrice");
+      remove("sortByNewest");
+      remove("sortByBiggestPrice");
+      reloadPage();
+    }
   }
 }
 
@@ -212,23 +299,17 @@ function renderColors(productsArray: Product[]) {
 document.querySelector(".clearFilters").addEventListener("click", () => {
   remove("selectedProduct");
   remove("selectedColor");
+  remove("sortByNewest");
+  remove("sortByLowerPrice");
+  remove("selectedBiggestPrice");
 
   reloadPage();
 });
 
 (function filterBySize() {
-  const selectedSize = (retrieve("selectedSize")) ? retrieve("selectedSize") : null;  
-
   const sizes: NodeListOf<HTMLElement> = document.querySelectorAll(".size");
-  let liArray: Element[] = Array.prototype.slice.call(sizes);
-
-  liArray.map((size) =>
+  Array.from(sizes).map((size) =>
     size.addEventListener("click", async () => {
-
-      console.log("SelectedSize", selectedSize[0].size.pop());
-      console.log("Size", size.innerHTML);
-      console.log("CompareSize", selectedSize.toString().toLowerCase() == size.innerHTML.toString().toLowerCase());
-
       await handleFilterBySize(await fetchApi(), size.innerHTML);
     })
   );
@@ -242,6 +323,53 @@ document.querySelector(".clearFilters").addEventListener("click", () => {
       await handleFilterByPrice(await fetchApi(), typePrice);
     })
   );
+})();
+
+(function sortBy() {
+  const select = document.getElementById("sortBy") as HTMLInputElement | null;
+  select.addEventListener("click", async () => {
+    console.log("selected", select.value);
+    await handleFilterSortBy(select.value);
+  });
+})();
+
+(function handleClickBrand() {
+  const brand = document.getElementById("brand") as HTMLInputElement;
+  brand.style.cursor = "pointer";
+  brand.addEventListener("click", () => {
+    remove("selectedProduct");
+    remove("selectedColor");
+    remove("selectedPrice");
+    remove("selectedSize");
+    remove("sortByNewest");
+    remove("sortByLowerPrice");
+    remove("selectedBiggestPrice");
+
+    reloadPage();
+  });
+})();
+
+(function showMore() {
+  const productsSection = document.querySelector(
+    ".products"
+  ) as HTMLInputElement;
+  productsSection.style.maxHeight = "1400px";
+  productsSection.style.overflow = "hidden";
+  productsSection.style.transition = "max-height 1s";
+  
+  const button = document.querySelector(".btn-loadmore");
+
+  button.addEventListener("click", () => {
+    if (productsSection.className == "open") {
+      productsSection.className = "";
+      productsSection.style.maxHeight = "1400px";
+      button.innerHTML = "CARREGAR MAIS"; // Mostrar mais
+    } else {
+      productsSection.className = "open";
+      productsSection.style.maxHeight = "2200px";
+      button.innerHTML = "CARREGAR MENOS"; // Mostrar menos
+    }
+  });
 })();
 
 document.addEventListener("DOMContentLoaded", fetchApi);

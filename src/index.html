@@ -20,6 +20,7 @@
       <div class="header-container">
         <div>
           <img
+            id="brand"
             src="./img/logo-m3.png"
             alt="Um logo com um m em minúsculo e o 3 maior que o m, formando o nome da empresa m3, separado por um slogan: performance digital."
           />
@@ -79,12 +80,12 @@
           <div class="colors-container">
             <h3>FAIXA DE PREÇO</h3>
             <div>
-              <input type="checkbox" class="price" value="['0', '50']" id="zeroToFifty" name="zeroToFifty" />
+              <input type="checkbox" class="price" value="0, 50" id="zeroToFifty" name="zeroToFifty" />
               <label for="zeroToFifty">de R$0 até R$50</label>
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="['0', '50']"
+                type="checkbox" class="price" value="51, 150"
                 id="fiftyOneToOneHundredAndFifty"
                 name="fiftyOneToOneHundredAndFifty"
               />
@@ -94,7 +95,7 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="['0', '50']"
+                type="checkbox" class="price" value="151, 300"
                 id="oneHundredAndFiftyToThreeHundred"
                 name="oneHundredAndFiftyToThreeHundred"
               />
@@ -104,7 +105,7 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="['0', '50']"
+                type="checkbox" class="price" value="301, 500"
                 id="threeHundredOneToFiveHundred"
                 name="threeHundredOneToFiveHundred"
               />
@@ -114,7 +115,7 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="['0', '50']"
+                type="checkbox" class="price" value="500, 1000"
                 id="aboveFiveHundred"
                 name="aboveFiveHundred"
               />
@@ -124,7 +125,7 @@
         </aside>
         <article>
           <div class="products"></div>
-          <a href="javascript:void(0)" id="load-more" class="btn-loadmore">CARREGAR MAIS</a>
+          <a href="javascript:void(0)" class="btn-loadmore">CARREGAR MAIS</a>
         </article>
       </div>
     </main>
