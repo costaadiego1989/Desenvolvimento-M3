@@ -41,7 +41,7 @@
         </div>
         <div>
           <div class="select">
-            <select>
+            <select id="sortBy">
               <option value="" selected disabled hidden>Ordenar por:</option>
               <option value="newest">Mais recente</option>
               <option value="biggestPrice">Maior preço</option>
@@ -56,23 +56,35 @@
           <div class="colors-container">
             <h3>CORES</h3>
             <ul class="productsColors"></ul>
-            <a href="#">Ver todas as cores <img src="./img/seta.png" /></a>
+            <a href="javascript:void(0)" class="clearFilters">Ver todas as cores <img src="./img/seta.png" /></a>
           </div>
 
           <div class="sizes-container">
             <h3>TAMANHOS</h3>
-            <ul class="productsSizes"></ul>
+            <ul class="productsSizes">
+              <li class="size" value="P">P</li>
+              <li class="size" value="M">M</li>
+              <li class="size" value="G">G</li>
+              <li class="size" value="GG">GG</li>
+              <li class="size" value="U">U</li>
+              <li class="size" value="36">36</li>
+              <li class="size" value="38">38</li>
+              <li class="size" value="40">40</li>
+              <li class="size" value="36">36</li>
+              <li class="size" value="38">38</li>
+              <li class="size" value="40">40</li>
+            </ul>
           </div>
 
           <div class="colors-container">
             <h3>FAIXA DE PREÇO</h3>
             <div>
-              <input type="checkbox" id="zeroToFifty" name="zeroToFifty" />
+              <input type="checkbox" class="price" value="['0', '50']" id="zeroToFifty" name="zeroToFifty" />
               <label for="zeroToFifty">de R$0 até R$50</label>
             </div>
             <div>
               <input
-                type="checkbox"
+                type="checkbox" class="price" value="['0', '50']"
                 id="fiftyOneToOneHundredAndFifty"
                 name="fiftyOneToOneHundredAndFifty"
               />
@@ -82,7 +94,7 @@
             </div>
             <div>
               <input
-                type="checkbox"
+                type="checkbox" class="price" value="['0', '50']"
                 id="oneHundredAndFiftyToThreeHundred"
                 name="oneHundredAndFiftyToThreeHundred"
               />
@@ -92,7 +104,7 @@
             </div>
             <div>
               <input
-                type="checkbox"
+                type="checkbox" class="price" value="['0', '50']"
                 id="threeHundredOneToFiveHundred"
                 name="threeHundredOneToFiveHundred"
               />
@@ -102,7 +114,7 @@
             </div>
             <div>
               <input
-                type="checkbox"
+                type="checkbox" class="price" value="['0', '50']"
                 id="aboveFiveHundred"
                 name="aboveFiveHundred"
               />

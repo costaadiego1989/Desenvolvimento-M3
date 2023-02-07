@@ -95,7 +95,6 @@ main {
 
       h3 {
         font-family: $main-font-name;
-        margin-bottom: 0.5rem;
         margin-bottom: 1rem;
       }
 
@@ -179,6 +178,10 @@ input[type="checkbox"]:checked::after {
 label {
   font-family: $main-font-name;
   font-size: 0.875rem;
+}
+
+input[type="checkbox"]:checked::after label::after {
+  color: red;
 }
 
 article {

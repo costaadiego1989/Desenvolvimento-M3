@@ -4,10 +4,8 @@
     "noImplicitAny": true,
     "module": "es6",
     "target": "es6",
-    "downlevelIteration": true,
     "jsx": "react",
     "allowJs": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
+    "moduleResolution": "node"
   }
 }
