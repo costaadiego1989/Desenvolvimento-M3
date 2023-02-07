@@ -102,6 +102,7 @@ function handleFilterByColor(productsArray: Product[], element: any) {
   if (retrieve("selectedProduct")) {
     renderFilteredProducts("selectedProduct");
     remove("selectedSize");
+    remove("selectedPrice");
     reloadPage();
   }
 }
@@ -121,6 +122,7 @@ function handleFilterBySize(productsArray: Product[], element: any) {
     renderFilteredProducts("selectedSize");
     remove("selectedProduct");
     remove("selectedColor");
+    remove("selectedPrice");
     reloadPage();
   }
 }
@@ -128,24 +130,25 @@ function handleFilterBySize(productsArray: Product[], element: any) {
 async function handleFilterByPrice(productsArray: Product[], element: any) {
   const products: Product[] = [];
 
-  console.log("element", element);
+  console.log("element", element.value.split(","));
 
   const filterProduct = productsArray.filter((product) => {
-    return product.price >= element;
+    return product.price >= element.innerHTML;
   });
+
+  console.log("filterProduct", filterProduct)
 
   products.push(...products.concat(filterProduct));
 
-  console.log("products", products);
+  persist("selectedPrice", products);
 
-  // persist("selectedPrice", products);
-
-  // if (retrieve("selectedSize")) {
-  //   renderFilteredProducts("selectedSize");
-  //   remove("selectedProduct");
-  //   remove("selectedColor");
-  //   reloadPage();
-  // }
+  if (retrieve("selectedPrice")) {
+    renderFilteredProducts("selectedPrice");
+    remove("selectedProduct");
+    remove("selectedColor");
+    remove("selectedSize");
+    reloadPage();
+  }
 }
 
 function renderColors(productsArray: Product[]) {
@@ -214,18 +217,19 @@ document.querySelector(".clearFilters").addEventListener("click", () => {
 });
 
 (function filterBySize() {
-  const selectedSize = (retrieve("selectedSize")) ? retrieve("selectedSize") : null;
-  console.log("selectedSize", selectedSize[0].size.pop());
-  
+  const selectedSize = (retrieve("selectedSize")) ? retrieve("selectedSize") : null;  
 
-  const sizes = document.querySelectorAll(".size");
-  Array.from(sizes).map((size) =>
+  const sizes: NodeListOf<HTMLElement> = document.querySelectorAll(".size");
+  let liArray: Element[] = Array.prototype.slice.call(sizes);
+
+  liArray.map((size) =>
     size.addEventListener("click", async () => {
-      console.log("size", size.value);
+
+      console.log("SelectedSize", selectedSize[0].size.pop());
+      console.log("Size", size.innerHTML);
+      console.log("CompareSize", selectedSize.toString().toLowerCase() == size.innerHTML.toString().toLowerCase());
 
       await handleFilterBySize(await fetchApi(), size.innerHTML);
-      size.classList.add("active");
-
     })
   );
 })();
