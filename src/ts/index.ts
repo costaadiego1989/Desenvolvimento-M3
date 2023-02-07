@@ -5,11 +5,61 @@ const serverUrl = "http://localhost:5000";
 
 const headers = new Headers();
 
+async function fetchApi() {
+  const req = await fetch(`${serverUrl}/products`, {
+    method: "GET",
+    headers: headers,
+    mode: "cors",
+    cache: "default",
+  })
+    .then((response) => response.json())
+    .then((data) => data);
+
+  let productsArray: Product[] = [];
+
+  for (let products of req) {
+    productsArray.push(products);
+  }
+
+  renderProducts(productsArray);
+
+  renderColors(productsArray);
+
+  return productsArray;
+}
+
+function reloadPage(): void {
+  return window.location.reload();
+}
+
+function persist(key: string, value: string | Product[]) {
+  return localStorage.setItem(key, JSON.stringify(value));
+}
+
+function retrieve(key: string) {
+  return JSON.parse(window.localStorage.getItem(key));
+}
+
+function remove(key: string): void {
+  return window.localStorage.removeItem(key);
+}
+
+function renderFilteredProducts(key: string) {
+  return retrieve(key);
+}
+
 function renderProducts(productsArray: Product[]) {
   const ul = document.createElement("ul");
   const attachUl = document.querySelector(".products").appendChild(ul);
 
-  for (let product of productsArray) {
+  const verifyIfKeyExistInLocalStorage = retrieve("selectedProduct");
+  console.log("verifyIfKeyExistInLocalStorage", verifyIfKeyExistInLocalStorage);
+
+  const renderFromLocalStorage = verifyIfKeyExistInLocalStorage
+    ? renderFilteredProducts("selectedProduct")
+    : renderFilteredProducts("selectedSize");
+
+  for (let product of renderFromLocalStorage || !verifyIfKeyExistInLocalStorage && productsArray) {
     const li: any = document.createElement("li");
     li.classList.add("product");
 
@@ -39,14 +89,63 @@ function renderProducts(productsArray: Product[]) {
 
 function handleFilterByColor(productsArray: Product[], element: any) {
   const products: Product[] = [];
+
   const filterProduct = productsArray.find(
     (product) => product.color === element.value
   );
-  products.push(...products, filterProduct);
-  window.localStorage.setItem('filteredProducts', JSON.stringify(products));
-  const win: Window = window;
-  win.location = "/";
-  console.log("filterProduct", filterProduct);
+
+  products.push(...products.concat(filterProduct));
+
+  persist("selectedProduct", products);
+  persist("selectedColor", element.value);
+
+  if (retrieve("selectedProduct")) {
+    renderFilteredProducts("selectedProduct");
+    remove("selectedSize");
+    reloadPage();
+  }
+}
+
+function handleFilterBySize(productsArray: Product[], element: any) {
+  const products: Product[] = [];
+
+  const filterProduct = productsArray.filter((product) => {
+    return product.size.includes(element);
+  });
+
+  products.push(...products.concat(filterProduct));
+
+  persist("selectedSize", products);
+
+  if (retrieve("selectedSize")) {
+    renderFilteredProducts("selectedSize");
+    remove("selectedProduct");
+    remove("selectedColor");
+    reloadPage();
+  }
+}
+
+async function handleFilterByPrice(productsArray: Product[], element: any) {
+  const products: Product[] = [];
+
+  console.log("element", element);
+
+  const filterProduct = productsArray.filter((product) => {
+    return product.price >= element;
+  });
+
+  products.push(...products.concat(filterProduct));
+
+  console.log("products", products);
+
+  // persist("selectedPrice", products);
+
+  // if (retrieve("selectedSize")) {
+  //   renderFilteredProducts("selectedSize");
+  //   remove("selectedProduct");
+  //   remove("selectedColor");
+  //   reloadPage();
+  // }
 }
 
 function renderColors(productsArray: Product[]) {
@@ -54,8 +153,15 @@ function renderColors(productsArray: Product[]) {
   const attachUl = document.querySelector(".productsColors").appendChild(ul);
 
   const setColors = new Set();
+  const sortByColorsName = productsArray.sort((a, b) => {
+    if (a.color < b.color) {
+      return -1;
+    } else {
+      return;
+    }
+  });
 
-  const filteredProducts = productsArray.filter((product) => {
+  const filteredProducts = sortByColorsName.filter((product) => {
     const duplicatedPerson = setColors.has(product.color);
     setColors.add(product.color);
     return !duplicatedPerson;
@@ -69,10 +175,14 @@ function renderColors(productsArray: Product[]) {
 
     li.innerHTML =
       li.innerHTML +
-      `<li>
-        <input type="checkbox" id="myCheckbox${(count = count + 1)}" name="${product.color}"
-        value="${product.color}" data-set="${product.color}" />
-        <label for="${product.color}">${product.color}</label>
+      `<li style="display: flex; align-items: center; margin-bottom: 0.25rem;">
+        <input type="checkbox" ${
+          retrieve("selectedColor")?.includes(product.color) ? "checked" : null
+        } id="myCheckbox${(count = count + 1)}" name="${product.color}"
+        value="${product.color}" />
+        <label style="margin-left: 0.5rem" for="${product.color}">${
+        product.color
+      }</label>
       </li>`;
 
     attachUl.appendChild(li);
@@ -96,56 +206,38 @@ function renderColors(productsArray: Product[]) {
     });
 }
 
-function renderSizes(productsArray: Product[]) {
-  var sizesList = document.querySelector(".productsSizes").innerHTML;
+document.querySelector(".clearFilters").addEventListener("click", () => {
+  remove("selectedProduct");
+  remove("selectedColor");
 
-  const setSizes = new Set();
+  reloadPage();
+});
 
-  const filteredProducts = productsArray.filter((product) => {
-    const duplicatedPerson = setSizes.has(product.size[0] || product.size[1]);
-    setSizes.add(product.size[0]);
-    setSizes.add(product.size[1]);
-    return !duplicatedPerson;
-  });
+(function filterBySize() {
+  const selectedSize = (retrieve("selectedSize")) ? retrieve("selectedSize") : null;
+  console.log("selectedSize", selectedSize[0].size.pop());
+  
 
-  for (let product of filteredProducts) {
-    sizesList =
-      sizesList +
-      `<li value=${product.size}>
-        ${product.size[0]}
-      </li>
-      <li value=${product.size}>
-        ${product.size[1] ? product.size[1] : "38"}
-      </li>`;
+  const sizes = document.querySelectorAll(".size");
+  Array.from(sizes).map((size) =>
+    size.addEventListener("click", async () => {
+      console.log("size", size.value);
 
-    var sizesList = (document.querySelector(".productsSizes").innerHTML =
-      sizesList);
-  }
+      await handleFilterBySize(await fetchApi(), size.innerHTML);
+      size.classList.add("active");
 
-  return sizesList;
-}
+    })
+  );
+})();
 
-async function fetchApi() {
-  const req = await fetch(`${serverUrl}/products`, {
-    method: "GET",
-    headers: headers,
-    mode: "cors",
-    cache: "default",
-  })
-    .then((response) => response.json())
-    .then((data) => data);
-
-  let productsArray: Product[] = [];
-
-  for (let products of req) {
-    productsArray.push(products);
-  }
-
-  renderProducts(productsArray);
-
-  renderColors(productsArray);
-
-  renderSizes(productsArray);
-}
+(function filterByPrice() {
+  const prices = document.querySelectorAll(".price");
+  Array.from(prices).map((price) =>
+    price.addEventListener("click", async () => {
+      const typePrice: any = price;
+      await handleFilterByPrice(await fetchApi(), typePrice);
+    })
+  );
+})();
 
 document.addEventListener("DOMContentLoaded", fetchApi);
