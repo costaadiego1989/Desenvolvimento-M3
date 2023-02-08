@@ -82,11 +82,31 @@ function renderProducts(productsArray: Product[]) {
         .toFixed(2)
         .toString()
         .replace(".", ",")}</p>
-      <a href="#">COMPRAR</a>
+      <a href="javascript:void(0)" id="${product.id}" class="buyNow">COMPRAR</a>
     `;
 
     attachUl.appendChild(li);
   }
+
+  const btnBuyNow: NodeListOf<HTMLElement> =
+    document.querySelectorAll(".buyNow");
+  Array.from(btnBuyNow).map((btn) => {
+    btn.addEventListener("click", async () => {
+      addItemToCart(btn);
+    });
+  });
+}
+
+async function addItemToCart(item: HTMLElement) {
+  const
+  allProducts = await fetchApi(),
+  filteredProducts = allProducts.filter((product) => product.id === item.id);
+
+  var cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  cart.push(...filteredProducts);
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  reloadPage();
 }
 
 function handleFilterByColor(productsArray: Product[], element: any) {
@@ -269,7 +289,7 @@ function renderColors(productsArray: Product[]) {
         <input type="checkbox" ${
           retrieve("selectedColor")?.includes(product.color) ? "checked" : null
         } id="myCheckbox${(count = count + 1)}" name="${product.color}"
-        value="${product.color}" />
+        value="${product.color}" class="inputColors" />
         <label style="margin-left: 0.5rem" for="${product.color}">${
         product.color
       }</label>
@@ -344,6 +364,7 @@ document.querySelector(".clearFilters").addEventListener("click", () => {
     remove("sortByNewest");
     remove("sortByLowerPrice");
     remove("selectedBiggestPrice");
+    remove("cart");
 
     reloadPage();
   });
@@ -353,23 +374,78 @@ document.querySelector(".clearFilters").addEventListener("click", () => {
   const productsSection = document.querySelector(
     ".products"
   ) as HTMLInputElement;
-  productsSection.style.maxHeight = "1400px";
-  productsSection.style.overflow = "hidden";
-  productsSection.style.transition = "max-height 1s";
-  
+  const screenWidth = window.innerWidth;
+  if (screenWidth > 420) {
+    productsSection.style.maxHeight = "1400px";
+    productsSection.style.overflow = "hidden";
+    productsSection.style.transition = "max-height 1s";
+  } else {
+    productsSection.style.maxHeight = "820px";
+    productsSection.style.overflow = "hidden";
+    productsSection.style.transition = "max-height 1s";
+  }
+
   const button = document.querySelector(".btn-loadmore");
 
   button.addEventListener("click", () => {
     if (productsSection.className == "open") {
-      productsSection.className = "";
-      productsSection.style.maxHeight = "1400px";
-      button.innerHTML = "CARREGAR MAIS"; // Mostrar mais
+      if (screenWidth > 420) {
+        productsSection.className = "";
+        productsSection.style.maxHeight = "1400px";
+        button.innerHTML = "CARREGAR MAIS";
+      } else {
+        productsSection.className = "";
+        productsSection.style.maxHeight = "820px";
+        button.innerHTML = "CARREGAR MAIS";
+      }
     } else {
-      productsSection.className = "open";
-      productsSection.style.maxHeight = "2200px";
-      button.innerHTML = "CARREGAR MENOS"; // Mostrar menos
+      if (screenWidth > 420) {
+        productsSection.className = "open";
+        productsSection.style.maxHeight = "2350px";
+        button.innerHTML = "CARREGAR MENOS";
+      } else {
+        productsSection.className = "open";
+        productsSection.style.maxHeight = "2560px";
+        button.innerHTML = "CARREGAR MENOS";
+      }
     }
   });
 })();
+
+(function itemCountCart() {
+  const count = document.querySelector(".item-cart-count");
+  count.innerHTML = retrieve("cart")?.length ? retrieve("cart")?.length : 0;
+})();
+
+const 
+  sortBtn = document.querySelector(".mobileSort"),
+  sortMenu = document.querySelector(".mobileSortMenu") as HTMLInputElement,
+  closeSortMenuBtn = document.querySelector(".closeSortMenu"),
+
+  filterBtn = document.querySelector(".mobileFilter"),
+  filterMenu = document.querySelector(".mobileFilterMenu"),
+  closeFilterMenuBtn = document.querySelector(".closeFilterMenu"),
+
+  mobileFilterMenu = document.querySelector(".mobileFilterMenu") as HTMLInputElement;
+
+sortBtn.addEventListener("click", () => {
+  sortMenu.classList.remove("dontShow");
+  sortMenu.style.position = "fixed";
+});
+
+closeSortMenuBtn.addEventListener("click", () => {
+  const sortMenu = document.querySelector(".mobileSortMenu");
+  sortMenu.classList.add("dontShow");
+});
+
+filterBtn.addEventListener("click", () => {
+  filterMenu.classList.remove("dontShow");
+  mobileFilterMenu.style.position = "fixed";  
+});
+
+closeFilterMenuBtn.addEventListener("click", () => {
+  const filterMenuMobile = document.querySelector(".mobileFilterMenu");
+  filterMenuMobile.classList.add("dontShow");
+});
 
 document.addEventListener("DOMContentLoaded", fetchApi);

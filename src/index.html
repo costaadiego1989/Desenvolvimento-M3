@@ -42,12 +42,53 @@
         </div>
         <div>
           <div class="select">
+            <div class="menuMobile">
+              <div class="mobileFilter">Filtrar</div>
+              <div class="mobileSort">Ordenar</div>
+            </div>
             <select id="sortBy">
               <option value="" selected disabled hidden>Ordenar por:</option>
               <option value="newest">Mais recente</option>
               <option value="biggestPrice">Maior preço</option>
               <option value="lowerPrice">Menor preço</option>
             </select>
+          </div>
+          <div class="mobileSortMenu dontShow">
+            <div class="mobileSortMenuContent">
+              <div><h3>ORDERNAR</h3></div>
+              <span class="closeSortMenu"></span>
+            </div>
+            <ul>
+              <li>Mais recente</li>
+              <li>Maior preço</li>
+              <li>Menor preço</li>
+            </ul>
+          </div>
+          <div class="mobileFilterMenu dontShow">
+            <div class="mobileFilterMenuContent">
+              <div><h3>FILTRAR</h3></div>
+              <span class="closeFilterMenu"></span>
+            </div>
+            <ul>
+              <li>
+                <div class="filterByColor">
+                  <h4>CORES</h4>
+                  <img src="./img/seta.png" />
+                </div>
+              </li>
+              <li>
+                <div>
+                  <h4>TAMANHOS</h4>
+                  <img src="./img/seta.png" />
+                </div>
+              </li>
+              <li>
+                <div>
+                  <h4>FAIXA DE PREÇO</h4>
+                  <img src="./img/seta.png" />
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
