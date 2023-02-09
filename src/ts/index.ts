@@ -5,482 +5,546 @@ const serverUrl = "http://localhost:5000";
 
 const headers = new Headers();
 
-async function fetchApi(): Promise<Product[]> {
-  const req = await fetch(`${serverUrl}/products`, {
-    method: "GET",
-    headers: headers,
-    mode: "cors",
-    cache: "default",
-  })
-    .then((response) => response.json())
-    .then((data) => data);
+class FetchAPI {
+  constructor() {}
 
-  let productsArray: Product[] = [];
-
-  for (let products of req) {
-    productsArray.push(products);
-  }
-
-  renderProducts(productsArray);
-
-  renderColors(productsArray);
-
-  return productsArray;
-}
-
-function reloadPage(): void {
-  return window.location.reload();
-}
-
-function persist(key: string, value: string | Product[]) {
-  return localStorage.setItem(key, JSON.stringify(value));
-}
-
-function retrieve(key: string) {
-  return JSON.parse(window.localStorage.getItem(key));
-}
-
-function remove(key: string): void {
-  return window.localStorage.removeItem(key);
-}
-
-function renderFilteredProducts(key: string) {
-  return retrieve(key);
-}
-
-function selectHTMLItem(key: string) {
-  return document.querySelector(`${key}`);
-}
-
-function renderProducts(productsArray: Product[]): void {
-  const ul = document.createElement("ul");
-  const attachUl = selectHTMLItem(".products").appendChild(ul);
-
-  let renderFromLocalStorage;
-
-  if (retrieve("selectedProduct")) {
-    renderFromLocalStorage = renderFilteredProducts("selectedProduct");
-  } else if (retrieve("selectedSize")) {
-    renderFromLocalStorage = renderFilteredProducts("selectedSize");
-  } else if (retrieve("selectedPrice")) {
-    renderFromLocalStorage = renderFilteredProducts("selectedPrice");
-  } else if (retrieve("sortByNewest")) {
-    renderFromLocalStorage = renderFilteredProducts("sortByNewest");
-  } else if (retrieve("sortByBiggestPrice")) {
-    renderFromLocalStorage = renderFilteredProducts("sortByBiggestPrice");
-  } else if (retrieve("sortByLowerPrice")) {
-    renderFromLocalStorage = renderFilteredProducts("sortByLowerPrice");
-  }
-
-  for (let product of renderFromLocalStorage || productsArray) {
-    const li: any = document.createElement("li");
-    li.classList.add("product");
-
-    li.innerHTML =
-      li.innerHTML +
-      ` 
-      <img src="${product.image}" alt="${product.name}" />
-      <h3>${product.name}</h3>
-      <p>R$${product.price.toFixed(2).toString().replace(".", ",")}</p>
-      <p>em até ${product.parcelamento[0]}x de R$${product.parcelamento[1]
-        .toFixed(2)
-        .toString()
-        .replace(".", ",")}</p>
-      <a href="javascript:void(0)" id="${product.id}" class="buyNow">COMPRAR</a>
-    `;
-
-    attachUl.appendChild(li);
-  }
-
-  const btnBuyNow: NodeListOf<HTMLElement> =
-    document.querySelectorAll(".buyNow");
-  Array.from(btnBuyNow).map((btn) => {
-    btn.addEventListener("click", async () => {
-      addItemToCart(btn);
-    });
-  });
-}
-
-async function addItemToCart(item: HTMLElement) {
-  const
-  allProducts = await fetchApi(),
-  filteredProducts = allProducts.filter((product) => product.id === item.id);
-
-  var cart = JSON.parse(retrieve("cart") || "[]");
-  cart.push(...filteredProducts);
-  persist("cart", cart);
-
-  reloadPage();
-}
-
-function handleFilterByColor(productsArray: Product[], element: any) {
-  const products: Product[] = [];
-
-  const filterProduct = productsArray.find(
-    (product) => product.color === element.value
-  );
-
-  products.push(...products.concat(filterProduct));
-
-  persist("selectedProduct", products);
-  persist("selectedColor", element.value);
-
-  if (retrieve("selectedProduct")) {
-    renderFilteredProducts("selectedProduct");
-    remove("selectedSize");
-    remove("selectedPrice");
-    remove("sortByNewest");
-    remove("sortByLowerPrice");
-    remove("selectedBiggestPrice");
-
-    reloadPage();
-  }
-}
-
-function handleFilterBySize(productsArray: Product[], element: any) {
-  const products: Product[] = [];
-
-  const filterProduct = productsArray.filter((product) => {
-    return product.size.includes(element);
-  });
-
-  products.push(...products.concat(filterProduct));
-
-  persist("selectedSize", products);
-
-  if (retrieve("selectedSize")) {
-    renderFilteredProducts("selectedSize");
-    remove("selectedProduct");
-    remove("selectedColor");
-    remove("selectedPrice");
-    remove("sortByNewest");
-    remove("sortByLowerPrice");
-    remove("selectedBiggestPrice");
-
-    reloadPage();
-  }
-}
-
-async function handleFilterByPrice(productsArray: Product[], element: any) {
-  const products: Product[] = [];
-
-  const valueFromCheckbox = element.value.split(",");
-  const filteredProducts = productsArray.filter(
-    (product) =>
-      product.price >= +valueFromCheckbox[0] &&
-      product.price <= +valueFromCheckbox[1]
-  );
-
-  products.push(...products.concat(filteredProducts));
-
-  persist("selectedPrice", products);
-
-  if (retrieve("selectedPrice")) {
-    renderFilteredProducts("selectedPrice");
-    remove("selectedProduct");
-    remove("selectedColor");
-    remove("selectedSize");
-    remove("sortByNewest");
-    remove("sortByLowerPrice");
-    remove("selectedBiggestPrice");
-
-    reloadPage();
-  }
-}
-
-async function handleFilterSortBy(inputValue: string) {
-  const productList = await fetchApi();
-
-  let sortByNewest;
-  let sortByBiggestPrice;
-  let sortByLowerPrice;
-
-  if (inputValue === "newest" || inputValue === "Mais recente") {
-    sortByNewest = productList
-      .map((product) => product)
-      .sort((a, b) => {
-        if (a.date > b.date) return -1;
-        if (a.date < b.date) return 1;
+  async request(): Promise<Product[]> {
+    try {
+      const response = await fetch(`${serverUrl}/products`, {
+        method: "GET",
+        headers: headers,
+        mode: "cors",
+        cache: "default",
       });
 
-    persist("sortByNewest", sortByNewest);
-
-    if (retrieve("sortByNewest")) {
-      renderFilteredProducts("sortByNewest");
-      remove("selectedProduct");
-      remove("selectedColor");
-      remove("selectedSize");
-      remove("selectedPrice");
-      remove("sortByLowerPrice");
-      remove("sortByBiggestPrice");
-      reloadPage();
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+      return [];
     }
   }
 
-  if (inputValue === "biggestPrice" || inputValue === "Maior preço") {
-    sortByBiggestPrice = productList
-      .map((product) => product)
-      .sort((a, b) => {
-        if (a.price > b.price) return -1;
-        if (a.price < b.price) return 1;
-      });
+  async productsList(): Promise<Product[]> {
+    try {
+      const productsList = await this.request();
+      const productsArray = [...productsList];
 
-    persist("sortByBiggestPrice", sortByBiggestPrice);
+      shopping.renderProducts(productsList);
+      shopping.renderColors(productsList);
 
-    if (retrieve("sortByBiggestPrice")) {
-      renderFilteredProducts("sortByBiggestPrice");
-      remove("selectedProduct");
-      remove("selectedColor");
-      remove("selectedSize");
-      remove("selectedPrice");
-      remove("sortByNewest");
-      remove("sortByLowerPrice");
-      reloadPage();
-    }
-  }
-
-  if (inputValue === "lowerPrice" || inputValue === "Menor preço") {
-    sortByLowerPrice = productList
-      .map((product) => product)
-      .sort((a, b) => {
-        if (a.price > b.price) return 1;
-        if (a.price < b.price) return -1;
-      });
-
-    persist("sortByLowerPrice", sortByLowerPrice);
-
-    if (retrieve("sortByLowerPrice")) {
-      renderFilteredProducts("sortByLowerPrice");
-      remove("selectedProduct");
-      remove("selectedColor");
-      remove("selectedSize");
-      remove("selectedPrice");
-      remove("sortByNewest");
-      remove("sortByBiggestPrice");
-      reloadPage();
+      return productsList;
+    } catch (error) {
+      console.error(error);
+      return [];
     }
   }
 }
 
-function renderColors(productsArray: Product[]) {
-  const ul = document.createElement("ul");
-  const attachUl = document.querySelector(".productsColors").appendChild(ul);
+const initialize = new FetchAPI();
 
-  const setColors = new Set();
-  const sortByColorsName = productsArray.sort((a, b) => {
-    if (a.color < b.color) {
-      return -1;
+class Services {
+  constructor() {}
+
+  reloadPage(): void {
+    window.location.reload();
+  }
+
+  persist(persistKey: string, persistValue: string | Product[]): void {
+    localStorage.setItem(persistKey, JSON.stringify(persistValue));
+  }
+
+  retrieve(retrieveKey: string): any {
+    return JSON.parse(localStorage.getItem(retrieveKey) || "null");
+  }
+
+  remove(removeKey: string): void {
+    localStorage.removeItem(removeKey);
+  }
+
+  renderFilteredProducts(renderKey: string): any {
+    return this.retrieve(renderKey);
+  }
+
+  selectHTMLItem(selectKey: string): HTMLElement {
+    return document.querySelector(selectKey);
+  }
+}
+
+const services = new Services();
+class Shopping extends Services {
+  constructor() {
+    super();
+  }
+
+  async renderProducts(productsArray: Product[]): Promise<void> {
+    const ul = document.createElement("ul");
+    this.selectHTMLItem(".products").appendChild(ul);
+
+    const filteredProducts = await this.getFilteredProducts(productsArray);
+    const renderedProducts = filteredProducts || productsArray;
+
+    for (const product of renderedProducts) {
+      const li = document.createElement("li");
+      li.classList.add("product");
+
+      li.innerHTML = `
+        <img src="${product.image}" alt="${product.name}" />
+        <h3>${product.name}</h3>
+        <p>
+          R$${product.price.toFixed(2).toString().replace(".", ",")}
+        </p>
+        <p>
+          em até ${product.parcelamento[0]}x de R$${product.parcelamento[1].toFixed(2).toString().replace(".", ",")}
+        </p>
+        <button id="${product.id}" class="buyNow">COMPRAR</button>
+      `;
+
+      ul.appendChild(li);
+    }
+
+    await this.addItemToCart();
+  }
+
+  private async getFilteredProducts(productsArray: Product[]): Promise<Product[] | null> {
+    if (this.retrieve("selectedProduct")) {
+      return this.renderFilteredProducts("selectedProduct");
+    }
+    if (this.retrieve("selectedSize")) {
+      return this.renderFilteredProducts("selectedSize");
+    }
+    if (this.retrieve("selectedPrice")) {
+      return this.renderFilteredProducts("selectedPrice");
+    }
+    if (this.retrieve("sortByNewest")) {
+      return this.renderFilteredProducts("sortByNewest");
+    }
+    if (this.retrieve("sortByBiggestPrice")) {
+      return this.renderFilteredProducts("sortByBiggestPrice");
+    }
+    if (this.retrieve("sortByLowerPrice")) {
+      return this.renderFilteredProducts("sortByLowerPrice");
+    }
+    return null;
+  }
+
+  private async addItemToCart(): Promise<void> {
+    const btnBuyNow = document.querySelectorAll(".buyNow") as NodeListOf<HTMLButtonElement>;
+
+    for (const btn of btnBuyNow) {
+      btn.addEventListener("click", async () => {
+        const allProducts = await initialize.productsList();
+        const filteredProducts = allProducts.filter((product) => product.id === btn.id);
+
+        let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        cart = [...cart, ...filteredProducts];
+        this.persist("cart", cart);
+
+        this.reloadPage();
+      });
+    }
+  }
+
+  renderColors(productsArray: Product[]): void {
+    const ul = document.createElement("ul");
+    let attachUl, attachUlMobile;
+
+    if (window.innerWidth <= 420) {
+      attachUlMobile = this.selectHTMLItem(".productsColorsMobile").appendChild(
+        ul
+      );
     } else {
-      return;
+      attachUl = this.selectHTMLItem(".productsColors").appendChild(ul);
     }
-  });
 
-  const filteredProducts = sortByColorsName.filter((product) => {
-    const duplicatedPerson = setColors.has(product.color);
-    setColors.add(product.color);
-    return !duplicatedPerson;
-  });
-
-  let count = 0;
-
-  for (let product of filteredProducts) {
-    let li: any = document.createElement("li");
-    li.classList.add("color");
-
-    li.innerHTML =
-      li.innerHTML +
-      `<li style="display: flex; align-items: center; margin-bottom: 0.25rem;">
-        <input type="checkbox" ${
-          retrieve("selectedColor")?.includes(product.color) ? "checked" : null
-        } id="myCheckbox${(count = count + 1)}" name="${product.color}"
-        value="${product.color}" class="inputColors" />
-        <label style="margin-left: 0.5rem" for="${product.color}">${
-        product.color
-      }</label>
-      </li>`;
-
-    attachUl.appendChild(li);
-  }
-
-  var inputs = $('[type="checkbox"]');
-  inputs.on("click", function () {
-    inputs.get().forEach(function (el) {
-      el.checked = el == this && this.checked;
-    }, this);
-  });
-
-  $("#myCheckbox1")
-    .add("#myCheckbox2")
-    .add("#myCheckbox3")
-    .add("#myCheckbox4")
-    .add("#myCheckbox5")
-    .add("#myCheckbox6")
-    .on("change", function () {
-      handleFilterByColor(productsArray, this);
-    });
-}
-
-document.querySelector(".clearFilters").addEventListener("click", () => {
-  remove("selectedProduct");
-  remove("selectedColor");
-  remove("sortByNewest");
-  remove("sortByLowerPrice");
-  remove("selectedBiggestPrice");
-
-  reloadPage();
-});
-
-(function filterBySize() {
-  const sizes: NodeListOf<HTMLElement> = document.querySelectorAll(".size");
-  Array.from(sizes).map((size) =>
-    size.addEventListener("click", async () => {
-      await handleFilterBySize(await fetchApi(), size.innerHTML);
-    })
-  );
-})();
-
-(function filterByPrice() {
-  const prices = document.querySelectorAll(".price");
-  Array.from(prices).map((price) =>
-    price.addEventListener("click", async () => {
-      const typePrice: any = price;
-      await handleFilterByPrice(await fetchApi(), typePrice);
-    })
-  );
-})();
-
-(function sortBy() {
-  const select = document.getElementById("sortBy") as HTMLInputElement | null;
-  select.addEventListener("click", async () => {
-    console.log("selected", select.value);
-    await handleFilterSortBy(select.value);
-  });
-})();
-
-(function handleClickBrand() {
-  const brand = document.getElementById("brand") as HTMLInputElement;
-  brand.style.cursor = "pointer";
-  brand.addEventListener("click", () => {
-    remove("selectedProduct");
-    remove("selectedColor");
-    remove("selectedPrice");
-    remove("selectedSize");
-    remove("sortByNewest");
-    remove("sortByLowerPrice");
-    remove("selectedBiggestPrice");
-    remove("cart");
-
-    reloadPage();
-  });
-})();
-
-(function showMore() {
-  const productsSection = document.querySelector(
-    ".products"
-  ) as HTMLInputElement;
-  const screenWidth = window.innerWidth;
-  if (screenWidth > 420) {
-    productsSection.style.maxHeight = "1400px";
-    productsSection.style.overflow = "hidden";
-    productsSection.style.transition = "max-height 1s";
-  } else {
-    productsSection.style.maxHeight = "820px";
-    productsSection.style.overflow = "hidden";
-    productsSection.style.transition = "max-height 1s";
-  }
-
-  const button = document.querySelector(".btn-loadmore");
-
-  button.addEventListener("click", () => {
-    if (productsSection.className == "open") {
-      if (screenWidth > 420) {
-        productsSection.className = "";
-        productsSection.style.maxHeight = "1400px";
-        button.innerHTML = "CARREGAR MAIS";
+    const setColors = new Set();
+    const sortByColorsName = productsArray.sort((a, b) => {
+      if (a.color < b.color) {
+        return -1;
       } else {
-        productsSection.className = "";
-        productsSection.style.maxHeight = "820px";
-        button.innerHTML = "CARREGAR MAIS";
+        return;
       }
-    } else {
-      if (screenWidth > 420) {
-        productsSection.className = "open";
-        productsSection.style.maxHeight = "2350px";
-        button.innerHTML = "CARREGAR MENOS";
+    });
+
+    const filteredProducts = sortByColorsName.filter((product) => {
+      const duplicatedColor = setColors.has(product.color);
+      setColors.add(product.color);
+      return !duplicatedColor;
+    });
+
+    let count = 0;
+
+    for (let product of filteredProducts) {
+      let li: any = document.createElement("li");
+      li.classList.add("color");
+
+      li.innerHTML =
+        li.innerHTML +
+        `
+          <input type="checkbox" ${
+            services.retrieve("selectedColor")?.includes(product.color)
+              ? "checked"
+              : null
+          }
+          id="myCheckbox" name="${product.color}"
+          value="${product.color}" class="inputColors" />
+          <label style="margin-left: 0.5rem" for="${product.color}">
+            ${product.color}
+          </label>
+        `;
+
+      if (window.innerWidth <= 420) {
+        attachUlMobile.appendChild(li);
       } else {
-        productsSection.className = "open";
-        productsSection.style.maxHeight = "2560px";
-        button.innerHTML = "CARREGAR MENOS";
+        attachUl.appendChild(li);
       }
     }
-  });
-})();
 
-(function itemCountCart() {
-  const count = document.querySelector(".item-cart-count");
-  count.innerHTML = retrieve("cart")?.length ? retrieve("cart")?.length : 0;
-})();
+    let inputs = $('[type="checkbox"]');
+    inputs.on("click", function () {
+      inputs.get().forEach(function (el) {
+        el.checked = el == this && this.checked;
+      }, this);
+    });
 
-const 
-  sortBtn = document.querySelector(".mobileSort"),
-  sortMenu = document.querySelector(".mobileSortMenu") as HTMLInputElement,
-  closeSortMenuBtn = document.querySelector(".closeSortMenu"),
+    const checkBoxes: NodeListOf<HTMLElement> =
+      document.querySelectorAll("#myCheckbox");
 
-  filterBtn = document.querySelector(".mobileFilter"),
-  filterMenu = document.querySelector(".mobileFilterMenu") as HTMLInputElement,
-  closeFilterMenuBtn = document.querySelector(".closeFilterMenu"),
+    Array.from(checkBoxes).map((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        const checkedBox: any = checkbox;
+        this.handleFilterByColor(productsArray, checkedBox);
+      });
+    });
 
-  filterByColor = document.querySelector(".colors") as HTMLInputElement,
-  filterBySize = document.querySelector(".filterBySize") as HTMLInputElement,
-  filterByPrice = document.querySelector(".filterByPrice") as HTMLInputElement;
+    this.selectHTMLItem(".clearFilters").addEventListener("click", () => {
+      this.remove("selectedProduct");
+      this.remove("selectedColor");
+      this.remove("sortByNewest");
+      this.remove("sortByLowerPrice");
+      this.remove("selectedBiggestPrice");
 
-sortBtn.addEventListener("click", () => {
-  sortMenu.classList.remove("dontShow");
-  sortMenu.style.overflowX = "scroll";
-});
+      this.reloadPage();
+    });
+  }
 
-closeSortMenuBtn.addEventListener("click", () => {
-  const sortMenu = document.querySelector(".mobileSortMenu");
-  sortMenu.classList.add("dontShow");
-});
+  handleFilterByColor(productsArray: Product[], element: any): void {
+    const products: Product[] = [];
 
-filterBtn.addEventListener("click", () => {
-  filterMenu.classList.remove("dontShow");
-  filterMenu.style.overflowX = "scroll";
-});
+    const filterProduct = productsArray.find(
+      (product) => product.color === element.value
+    );
 
-closeFilterMenuBtn.addEventListener("click", () => {
-  const filterMenuMobile = document.querySelector(".mobileFilterMenu");
-  filterMenuMobile.classList.add("dontShow");
-});
+    products.push(...products.concat(filterProduct));
 
-filterByColor.addEventListener("click", () => {
-  const inputColor = document.querySelector(".inputColor");
-  inputColor.classList.remove(".inputColor");
-  inputColor.classList.toggle("showCheckboxFilters");
-});
+    this.persist("selectedProduct", products);
+    this.persist("selectedColor", element.value);
 
-filterBySize.addEventListener("click", () => {
-  const inputSize = document.querySelector(".inputSize");
-  inputSize.classList.remove(".inputSize");
-  inputSize.classList.toggle("showCheckboxFilters");
-});
+    if (this.retrieve("selectedProduct")) {
+      this.renderFilteredProducts("selectedProduct");
+      this.remove("selectedSize");
+      this.remove("selectedPrice");
+      this.remove("sortByNewest");
+      this.remove("sortByLowerPrice");
+      this.remove("selectedBiggestPrice");
 
-filterByPrice.addEventListener("click", () => {
-  const inputPrice = document.querySelector(".inputPrice");
-  inputPrice.classList.remove(".inputPrice");
-  inputPrice.classList.toggle("showCheckboxFilters");
-});
+      this.reloadPage();
+    }
+  }
 
-const sortMobileMenu: NodeListOf<Element> = document.querySelectorAll(".sortMobileMenu li");
+  handleFilterBySize(productsArray: Product[], element: any): void {
+    const products: Product[] = [];
 
-Array.from(sortMobileMenu).map(item => {
-  item.addEventListener("click", () => {
-    const sort: any = item;
-    console.log("sort.value", sort.value);
-    
-    handleFilterSortBy(sort.innerHTML);
-  });
-});
+    const filterProduct = productsArray.filter((product) => {
+      return product.size.includes(element);
+    });
 
-document.addEventListener("DOMContentLoaded", fetchApi);
+    products.push(...products.concat(filterProduct));
+
+    this.persist("selectedSize", products);
+
+    if (this.retrieve("selectedSize")) {
+      this.renderFilteredProducts("selectedSize");
+      this.remove("selectedProduct");
+      this.remove("selectedColor");
+      this.remove("selectedPrice");
+      this.remove("sortByNewest");
+      this.remove("sortByLowerPrice");
+      this.remove("selectedBiggestPrice");
+
+      this.reloadPage();
+    }
+  }
+
+  handleFilterByPrice(productsArray: Product[], element: any): void {
+    const products: Product[] = [];
+
+    const valueFromCheckbox = element.value.split(",");
+    const filteredProducts = productsArray.filter(
+      (product) =>
+        product.price >= +valueFromCheckbox[0] &&
+        product.price <= +valueFromCheckbox[1]
+    );
+
+    products.push(...products.concat(filteredProducts));
+
+    this.persist("selectedPrice", products);
+
+    if (this.retrieve("selectedPrice")) {
+      this.renderFilteredProducts("selectedPrice");
+      this.remove("selectedProduct");
+      this.remove("selectedColor");
+      this.remove("selectedSize");
+      this.remove("sortByNewest");
+      this.remove("sortByLowerPrice");
+      this.remove("selectedBiggestPrice");
+
+      this.reloadPage();
+    }
+  }
+
+  async handleFilterSortBy(inputValue: string): Promise<void> {
+    const productList = await initialize.productsList();
+
+    let sortByNewest;
+    let sortByBiggestPrice;
+    let sortByLowerPrice;
+
+    if (inputValue === "newest" || inputValue === "Mais recente") {
+      sortByNewest = productList
+        .map((product) => product)
+        .sort((a, b) => {
+          if (a.date > b.date) return -1;
+          if (a.date < b.date) return 1;
+        });
+
+      this.persist("sortByNewest", sortByNewest);
+
+      if (this.retrieve("sortByNewest")) {
+        this.renderFilteredProducts("sortByNewest");
+        this.remove("selectedProduct");
+        this.remove("selectedColor");
+        this.remove("selectedSize");
+        this.remove("selectedPrice");
+        this.remove("sortByLowerPrice");
+        this.remove("sortByBiggestPrice");
+        this.reloadPage();
+      }
+    }
+
+    if (inputValue === "biggestPrice" || inputValue === "Maior preço") {
+      sortByBiggestPrice = productList
+        .map((product) => product)
+        .sort((a, b) => {
+          if (a.price > b.price) return -1;
+          if (a.price < b.price) return 1;
+        });
+
+      this.persist("sortByBiggestPrice", sortByBiggestPrice);
+
+      if (this.retrieve("sortByBiggestPrice")) {
+        this.renderFilteredProducts("sortByBiggestPrice");
+        this.remove("selectedProduct");
+        this.remove("selectedColor");
+        this.remove("selectedSize");
+        this.remove("selectedPrice");
+        this.remove("sortByNewest");
+        this.remove("sortByLowerPrice");
+        this.reloadPage();
+      }
+    }
+
+    if (inputValue === "lowerPrice" || inputValue === "Menor preço") {
+      sortByLowerPrice = productList
+        .map((product) => product)
+        .sort((a, b) => {
+          if (a.price > b.price) return 1;
+          if (a.price < b.price) return -1;
+        });
+
+      this.persist("sortByLowerPrice", sortByLowerPrice);
+
+      if (this.retrieve("sortByLowerPrice")) {
+        this.renderFilteredProducts("sortByLowerPrice");
+        this.remove("selectedProduct");
+        this.remove("selectedColor");
+        this.remove("selectedSize");
+        this.remove("selectedPrice");
+        this.remove("sortByNewest");
+        this.remove("sortByBiggestPrice");
+        this.reloadPage();
+      }
+    }
+  }
+
+  filterBySize(): void {
+    const sizes: NodeListOf<HTMLElement> = document.querySelectorAll(".size");
+    Array.from(sizes).map((size) =>
+      size.addEventListener("click", async () => {
+        this.handleFilterBySize(
+          await initialize.productsList(),
+          size.innerHTML
+        );
+      })
+    );
+  }
+
+  filterByPrice(): void {
+    const prices = document.querySelectorAll(".price");
+    Array.from(prices).map((price) =>
+      price.addEventListener("click", async () => {
+        const typePrice: any = price;
+        shopping.handleFilterByPrice(
+          await initialize.productsList(),
+          typePrice
+        );
+      })
+    );
+  }
+
+  sortBy(): void {
+    const select = document.getElementById("sortBy") as HTMLInputElement | null;
+    select.addEventListener("click", async () => {
+      console.log("selected", select.value);
+      await shopping.handleFilterSortBy(select.value);
+    });
+  }
+
+  handleClickBrandAndResetStorage(): void {
+    const brand = document.getElementById("brand") as HTMLInputElement;
+    brand.style.cursor = "pointer";
+    brand.addEventListener("click", () => {
+      this.remove("selectedProduct");
+      this.remove("selectedColor");
+      this.remove("selectedPrice");
+      this.remove("selectedSize");
+      this.remove("sortByNewest");
+      this.remove("sortByLowerPrice");
+      this.remove("selectedBiggestPrice");
+      this.remove("cart");
+
+      this.reloadPage();
+    });
+  }
+
+  showMore(): void {
+    const productsSection = this.selectHTMLItem(
+      ".products"
+    ) as HTMLInputElement;
+    const screenWidth = window.innerWidth;
+    if (screenWidth > 420) {
+      productsSection.style.maxHeight = "1370px";
+      productsSection.style.overflow = "hidden";
+      productsSection.style.transition = "max-height 1s";
+    } else {
+      productsSection.style.maxHeight = "820px";
+      productsSection.style.overflow = "hidden";
+      productsSection.style.transition = "max-height 1s";
+    }
+
+    const button = this.selectHTMLItem(".btn-loadmore");
+
+    button.addEventListener("click", () => {
+      if (productsSection.className == "open") {
+        if (screenWidth > 420) {
+          productsSection.className = "";
+          productsSection.style.maxHeight = "1370px";
+          button.innerHTML = "CARREGAR MAIS";
+        } else {
+          productsSection.className = "";
+          productsSection.style.maxHeight = "820px";
+          button.innerHTML = "CARREGAR MAIS";
+        }
+      } else {
+        if (screenWidth > 420) {
+          productsSection.className = "open";
+          productsSection.style.maxHeight = "2350px";
+          button.innerHTML = "CARREGAR MENOS";
+        } else {
+          productsSection.className = "open";
+          productsSection.style.maxHeight = "2560px";
+          button.innerHTML = "CARREGAR MENOS";
+        }
+      }
+    });
+  }
+
+  itemCountCart() {
+    const count = this.selectHTMLItem(".item-cart-count");
+    count.innerHTML = services.retrieve("cart")?.length
+      ? services.retrieve("cart")?.length
+      : 0;
+  }
+
+  initializeMenuMobile(): void {
+    const sortBtn = this.selectHTMLItem(".mobileSort"),
+      sortMenu = this.selectHTMLItem(".mobileSortMenu") as HTMLInputElement,
+      closeSortMenuBtn = this.selectHTMLItem(".closeSortMenu"),
+      filterBtn = this.selectHTMLItem(".mobileFilter"),
+      filterMenu = this.selectHTMLItem(".mobileFilterMenu") as HTMLInputElement,
+      closeFilterMenuBtn = this.selectHTMLItem(".closeFilterMenu"),
+      filterByColor = this.selectHTMLItem(".colors") as HTMLInputElement,
+      filterBySize = this.selectHTMLItem(".filterBySize") as HTMLInputElement,
+      filterByPrice = this.selectHTMLItem(".filterByPrice") as HTMLInputElement;
+
+    sortBtn.addEventListener("click", () => {
+      sortMenu.classList.remove("dontShow");
+      sortMenu.style.overflowX = "scroll";
+    });
+
+    closeSortMenuBtn.addEventListener("click", () => {
+      const sortMenu = this.selectHTMLItem(".mobileSortMenu");
+      sortMenu.classList.add("dontShow");
+    });
+
+    filterBtn.addEventListener("click", () => {
+      filterMenu.classList.remove("dontShow");
+      filterMenu.style.overflowX = "scroll";
+    });
+
+    closeFilterMenuBtn.addEventListener("click", () => {
+      const filterMenuMobile = this.selectHTMLItem(".mobileFilterMenu");
+      filterMenuMobile.classList.add("dontShow");
+      services.reloadPage();
+    });
+
+    filterByColor.addEventListener("click", () => {
+      const inputColor = this.selectHTMLItem(".inputColor");
+      inputColor.classList.remove(".inputColor");
+      inputColor.classList.toggle("showCheckboxFilters");
+    });
+
+    filterBySize.addEventListener("click", () => {
+      const inputSize = this.selectHTMLItem(".inputSize");
+      inputSize.classList.remove(".inputSize");
+      inputSize.classList.toggle("showCheckboxFilters");
+    });
+
+    filterByPrice.addEventListener("click", () => {
+      const inputPrice = this.selectHTMLItem(".inputPrice");
+      inputPrice.classList.remove(".inputPrice");
+      inputPrice.classList.toggle("showCheckboxFilters");
+    });
+
+    const sortMobileMenu: NodeListOf<Element> =
+      document.querySelectorAll(".sortMobileMenu li");
+
+    Array.from(sortMobileMenu).map((item) => {
+      item.addEventListener("click", () => {
+        const sort: any = item;
+        shopping.handleFilterSortBy(sort.innerHTML);
+      });
+    });
+  }
+}
+
+const shopping = new Shopping();
+shopping.filterBySize();
+shopping.filterByPrice();
+shopping.sortBy();
+shopping.handleClickBrandAndResetStorage();
+shopping.showMore();
+shopping.itemCountCart();
+shopping.initializeMenuMobile();
+
+document.addEventListener("DOMContentLoaded", initialize.productsList());
