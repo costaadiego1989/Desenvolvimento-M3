@@ -58,10 +58,10 @@
               <div><h3>ORDERNAR</h3></div>
               <span class="closeSortMenu"></span>
             </div>
-            <ul>
-              <li>Mais recente</li>
-              <li>Maior preço</li>
-              <li>Menor preço</li>
+            <ul class="sortMobileMenu">
+              <li value="newest">Mais recente</li>
+              <li value="biggestPrice">Maior preço</li>
+              <li value="lowerPrice">Menor preço</li>
             </ul>
           </div>
           <div class="mobileFilterMenu dontShow">
@@ -70,24 +70,116 @@
               <span class="closeFilterMenu"></span>
             </div>
             <ul>
-              <li>
-                <div class="filterByColor">
+              <li class="filterByColor">
+                <div class="colors">
                   <h4>CORES</h4>
                   <img src="./img/seta.png" />
                 </div>
+                <div class="inputColor">
+                  <ul class="productsColors"></ul>
+                </div>
               </li>
-              <li>
-                <div>
+              <li class="filterBySize">
+                <div class="sizes">
                   <h4>TAMANHOS</h4>
                   <img src="./img/seta.png" />
                 </div>
+                <div class="inputSize">
+                  <ul class="productsSizes">
+                    <li class="size" value="P">P</li>
+                    <li class="size" value="M">M</li>
+                    <li class="size" value="G">G</li>
+                    <li class="size" value="GG">GG</li>
+                    <li class="size" value="U">U</li>
+                    <li class="size" value="36">36</li>
+                    <li class="size" value="38">38</li>
+                    <li class="size" value="40">40</li>
+                    <li class="size" value="36">36</li>
+                    <li class="size" value="38">38</li>
+                    <li class="size" value="40">40</li>
+                  </ul>
+                </div>
               </li>
-              <li>
-                <div>
+              <li class="filterByPrice">
+                <div class="prices">
                   <h4>FAIXA DE PREÇO</h4>
                   <img src="./img/seta.png" />
                 </div>
+                <div class="inputPrice">
+                  <ul class="productsPrices">
+                    <li>
+                      <div>
+                        <input
+                          type="checkbox"
+                          class="price"
+                          value="0, 50"
+                          id="zeroToFifty"
+                          name="zeroToFifty"
+                        />
+                        <label for="zeroToFifty">de R$0 até R$50</label>
+                      </div>
+                    </li>
+                    <li>
+                      <div>
+                        <input
+                          type="checkbox"
+                          class="price"
+                          value="51, 150"
+                          id="fiftyOneToOneHundredAndFifty"
+                          name="fiftyOneToOneHundredAndFifty"
+                        />
+                        <label for="fiftyOneToOneHundredAndFifty"
+                          >de R$51 até R$150</label
+                        >
+                      </div>
+                    </li>
+                    <li>
+                      <div>
+                        <input
+                          type="checkbox"
+                          class="price"
+                          value="151, 300"
+                          id="oneHundredAndFiftyToThreeHundred"
+                          name="oneHundredAndFiftyToThreeHundred"
+                        />
+                        <label for="oneHundredAndFiftyToThreeHundred"
+                          >de R$151 até R$300</label
+                        >
+                      </div>
+                    </li>
+                    <li>
+                      <div>
+                        <input
+                          type="checkbox"
+                          class="price"
+                          value="301, 500"
+                          id="threeHundredOneToFiveHundred"
+                          name="threeHundredOneToFiveHundred"
+                        />
+                        <label for="threeHundredOneToFiveHundred"
+                          >de R$301 até R$500</label
+                        >
+                      </div>
+                    </li>
+                    <li>
+                      <div>
+                        <input
+                          type="checkbox"
+                          class="price"
+                          value="500, 1000"
+                          id="aboveFiveHundred"
+                          name="aboveFiveHundred"
+                        />
+                        <label for="aboveFiveHundred">a partir de R$500</label>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
               </li>
+              <div class="menuMobileButtons">
+                <a href="javascript:void(0)" class="btn-apply">APLICAR</a>
+                <a href="javascript:void(0)" class="btn-clear">LIMPAR</a>
+              </div>
             </ul>
           </div>
         </div>
@@ -98,7 +190,9 @@
           <div class="colors-container">
             <h3>CORES</h3>
             <ul class="productsColors"></ul>
-            <a href="javascript:void(0)" class="clearFilters">Ver todas as cores <img src="./img/seta.png" /></a>
+            <a href="javascript:void(0)" class="clearFilters"
+              >Ver todas as cores <img src="./img/seta.png"
+            /></a>
           </div>
 
           <div class="sizes-container">
@@ -121,12 +215,20 @@
           <div class="colors-container">
             <h3>FAIXA DE PREÇO</h3>
             <div>
-              <input type="checkbox" class="price" value="0, 50" id="zeroToFifty" name="zeroToFifty" />
+              <input
+                type="checkbox"
+                class="price"
+                value="0, 50"
+                id="zeroToFifty"
+                name="zeroToFifty"
+              />
               <label for="zeroToFifty">de R$0 até R$50</label>
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="51, 150"
+                type="checkbox"
+                class="price"
+                value="51, 150"
                 id="fiftyOneToOneHundredAndFifty"
                 name="fiftyOneToOneHundredAndFifty"
               />
@@ -136,7 +238,9 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="151, 300"
+                type="checkbox"
+                class="price"
+                value="151, 300"
                 id="oneHundredAndFiftyToThreeHundred"
                 name="oneHundredAndFiftyToThreeHundred"
               />
@@ -146,7 +250,9 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="301, 500"
+                type="checkbox"
+                class="price"
+                value="301, 500"
                 id="threeHundredOneToFiveHundred"
                 name="threeHundredOneToFiveHundred"
               />
@@ -156,7 +262,9 @@
             </div>
             <div>
               <input
-                type="checkbox" class="price" value="500, 1000"
+                type="checkbox"
+                class="price"
+                value="500, 1000"
                 id="aboveFiveHundred"
                 name="aboveFiveHundred"
               />

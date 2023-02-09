@@ -5,7 +5,7 @@ const serverUrl = "http://localhost:5000";
 
 const headers = new Headers();
 
-async function fetchApi() {
+async function fetchApi(): Promise<Product[]> {
   const req = await fetch(`${serverUrl}/products`, {
     method: "GET",
     headers: headers,
@@ -48,9 +48,13 @@ function renderFilteredProducts(key: string) {
   return retrieve(key);
 }
 
-function renderProducts(productsArray: Product[]) {
+function selectHTMLItem(key: string) {
+  return document.querySelector(`${key}`);
+}
+
+function renderProducts(productsArray: Product[]): void {
   const ul = document.createElement("ul");
-  const attachUl = document.querySelector(".products").appendChild(ul);
+  const attachUl = selectHTMLItem(".products").appendChild(ul);
 
   let renderFromLocalStorage;
 
@@ -102,9 +106,9 @@ async function addItemToCart(item: HTMLElement) {
   allProducts = await fetchApi(),
   filteredProducts = allProducts.filter((product) => product.id === item.id);
 
-  var cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  var cart = JSON.parse(retrieve("cart") || "[]");
   cart.push(...filteredProducts);
-  localStorage.setItem("cart", JSON.stringify(cart));
+  persist("cart", cart);
 
   reloadPage();
 }
@@ -191,7 +195,7 @@ async function handleFilterSortBy(inputValue: string) {
   let sortByBiggestPrice;
   let sortByLowerPrice;
 
-  if (inputValue === "newest") {
+  if (inputValue === "newest" || inputValue === "Mais recente") {
     sortByNewest = productList
       .map((product) => product)
       .sort((a, b) => {
@@ -213,7 +217,7 @@ async function handleFilterSortBy(inputValue: string) {
     }
   }
 
-  if (inputValue === "biggestPrice") {
+  if (inputValue === "biggestPrice" || inputValue === "Maior preço") {
     sortByBiggestPrice = productList
       .map((product) => product)
       .sort((a, b) => {
@@ -235,7 +239,7 @@ async function handleFilterSortBy(inputValue: string) {
     }
   }
 
-  if (inputValue === "lowerPrice") {
+  if (inputValue === "lowerPrice" || inputValue === "Menor preço") {
     sortByLowerPrice = productList
       .map((product) => product)
       .sort((a, b) => {
@@ -423,14 +427,16 @@ const
   closeSortMenuBtn = document.querySelector(".closeSortMenu"),
 
   filterBtn = document.querySelector(".mobileFilter"),
-  filterMenu = document.querySelector(".mobileFilterMenu"),
+  filterMenu = document.querySelector(".mobileFilterMenu") as HTMLInputElement,
   closeFilterMenuBtn = document.querySelector(".closeFilterMenu"),
 
-  mobileFilterMenu = document.querySelector(".mobileFilterMenu") as HTMLInputElement;
+  filterByColor = document.querySelector(".colors") as HTMLInputElement,
+  filterBySize = document.querySelector(".filterBySize") as HTMLInputElement,
+  filterByPrice = document.querySelector(".filterByPrice") as HTMLInputElement;
 
 sortBtn.addEventListener("click", () => {
   sortMenu.classList.remove("dontShow");
-  sortMenu.style.position = "fixed";
+  sortMenu.style.overflowX = "scroll";
 });
 
 closeSortMenuBtn.addEventListener("click", () => {
@@ -440,12 +446,41 @@ closeSortMenuBtn.addEventListener("click", () => {
 
 filterBtn.addEventListener("click", () => {
   filterMenu.classList.remove("dontShow");
-  mobileFilterMenu.style.position = "fixed";  
+  filterMenu.style.overflowX = "scroll";
 });
 
 closeFilterMenuBtn.addEventListener("click", () => {
   const filterMenuMobile = document.querySelector(".mobileFilterMenu");
   filterMenuMobile.classList.add("dontShow");
+});
+
+filterByColor.addEventListener("click", () => {
+  const inputColor = document.querySelector(".inputColor");
+  inputColor.classList.remove(".inputColor");
+  inputColor.classList.toggle("showCheckboxFilters");
+});
+
+filterBySize.addEventListener("click", () => {
+  const inputSize = document.querySelector(".inputSize");
+  inputSize.classList.remove(".inputSize");
+  inputSize.classList.toggle("showCheckboxFilters");
+});
+
+filterByPrice.addEventListener("click", () => {
+  const inputPrice = document.querySelector(".inputPrice");
+  inputPrice.classList.remove(".inputPrice");
+  inputPrice.classList.toggle("showCheckboxFilters");
+});
+
+const sortMobileMenu: NodeListOf<Element> = document.querySelectorAll(".sortMobileMenu li");
+
+Array.from(sortMobileMenu).map(item => {
+  item.addEventListener("click", () => {
+    const sort: any = item;
+    console.log("sort.value", sort.value);
+    
+    handleFilterSortBy(sort.innerHTML);
+  });
 });
 
 document.addEventListener("DOMContentLoaded", fetchApi);
