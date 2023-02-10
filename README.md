@@ -30,6 +30,14 @@ Estamos procurando Desenvolvedores(as) `Front-end`, com sólidos conhecimentos e
 
 ----
 
+### E-mail para contato
+Como rodar o projeto:
+
+O comando: npm start inicia a fakeapi e o front-end
+
+### E-mail para contato
+costaadiego1989@gmail.com
+
 ## Como se candidatar a vaga
 
 - [Crie um fork desse projeto;](https://github.com/agenciam3/Desenvolvedor-M3/fork)

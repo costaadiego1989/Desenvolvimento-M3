@@ -574,10 +574,6 @@ class Shopping extends Services {
       filterPriceByCriteria = Array.from(selectPrices)
         .map((item) => item)
         .filter(item => item.value === catchPriceCriteriaOnStorage);
-
-        console.log("catchPriceCriteriaOnStorage", catchPriceCriteriaOnStorage);
-        console.log("filterPriceByCriteria", filterPriceByCriteria);
-
       
       filterPriceByCriteria.map((item) => {    
         item.classList.add("priceChecked");
