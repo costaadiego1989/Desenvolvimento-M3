@@ -69,6 +69,10 @@ class Services {
   selectHTMLItem(selectKey: string): HTMLElement {
     return document.querySelector(selectKey);
   }
+
+  selectAllHTMLItems(selectKey: string) {
+    return document.querySelectorAll(selectKey) as NodeListOf<HTMLInputElement>;
+  }
 }
 
 const services = new Services();
@@ -129,7 +133,7 @@ class Shopping extends Services {
   }
 
   private async addItemToCart(): Promise<void> {
-    const btnBuyNow = document.querySelectorAll(".buyNow") as NodeListOf<HTMLButtonElement>;
+    const btnBuyNow = this.selectAllHTMLItems(".buyNow") as NodeListOf<HTMLButtonElement>;
 
     for (const btn of btnBuyNow) {
       btn.addEventListener("click", async () => {
@@ -208,7 +212,7 @@ class Shopping extends Services {
     });
 
     const checkBoxes: NodeListOf<HTMLElement> =
-      document.querySelectorAll("#myCheckbox");
+    this.selectAllHTMLItems("#myCheckbox");
 
     Array.from(checkBoxes).map((checkbox) => {
       checkbox.addEventListener("change", () => {
@@ -228,12 +232,12 @@ class Shopping extends Services {
     });
   }
 
-  handleFilterByColor(productsArray: Product[], element: any): void {
+  async handleFilterByColor(productsArray: Product[], element: any): Promise<void> {
     const products: Product[] = [];
 
-    const filterProduct = productsArray.find(
+    const filterProduct = await productsArray.filter(
       (product) => product.color === element.value
-    );
+    );    
 
     products.push(...products.concat(filterProduct));
 
@@ -245,10 +249,13 @@ class Shopping extends Services {
       this.remove("selectedSize");
       this.remove("selectedPrice");
       this.remove("sortByNewest");
+      this.remove("selectedCriteriaSize");
+      this.remove("selectedCriteriaPrice");
       this.remove("sortByLowerPrice");
+      this.remove("sortByBiggestPrice");
       this.remove("selectedBiggestPrice");
 
-      this.reloadPage();
+      if (window.innerWidth > 420) this.reloadPage();
     }
   }
 
@@ -262,17 +269,27 @@ class Shopping extends Services {
     products.push(...products.concat(filterProduct));
 
     this.persist("selectedSize", products);
+    this.persist("selectedCriteriaSize", element);
+
+    const 
+      selectAllSizes = this.selectAllHTMLItems(".size") as NodeListOf<HTMLInputElement>,
+      AllSizesToArray = Array.from(selectAllSizes).map((item) => item.innerHTML),
+      selectAllSizesText = Array.from(selectAllSizes).map((item) => item),
+      filterBySizeCriteria: any = AllSizesToArray.filter(sizes => sizes === this.retrieve("selectedCriteriaSize"))[0],
+      matchSizeCriteria = AllSizesToArray.some(size => size === filterBySizeCriteria);
 
     if (this.retrieve("selectedSize")) {
       this.renderFilteredProducts("selectedSize");
       this.remove("selectedProduct");
+      this.remove("selectedCriteriaPrice");
       this.remove("selectedColor");
       this.remove("selectedPrice");
       this.remove("sortByNewest");
       this.remove("sortByLowerPrice");
+      this.remove("sortByBiggestPrice");
       this.remove("selectedBiggestPrice");
 
-      this.reloadPage();
+      if (window.innerWidth > 420) this.reloadPage();
     }
   }
 
@@ -289,17 +306,19 @@ class Shopping extends Services {
     products.push(...products.concat(filteredProducts));
 
     this.persist("selectedPrice", products);
+    this.persist("selectedCriteriaPrice", element.value);
 
     if (this.retrieve("selectedPrice")) {
       this.renderFilteredProducts("selectedPrice");
       this.remove("selectedProduct");
+      this.remove("selectedCriteriaSize");
       this.remove("selectedColor");
       this.remove("selectedSize");
       this.remove("sortByNewest");
       this.remove("sortByLowerPrice");
       this.remove("selectedBiggestPrice");
 
-      this.reloadPage();
+      if (window.innerWidth > 420) this.reloadPage();
     }
   }
 
@@ -378,7 +397,7 @@ class Shopping extends Services {
   }
 
   filterBySize(): void {
-    const sizes: NodeListOf<HTMLElement> = document.querySelectorAll(".size");
+    const sizes: NodeListOf<HTMLElement> = this.selectAllHTMLItems(".size");
     Array.from(sizes).map((size) =>
       size.addEventListener("click", async () => {
         this.handleFilterBySize(
@@ -390,7 +409,7 @@ class Shopping extends Services {
   }
 
   filterByPrice(): void {
-    const prices = document.querySelectorAll(".price");
+    const prices = this.selectAllHTMLItems(".price");
     Array.from(prices).map((price) =>
       price.addEventListener("click", async () => {
         const typePrice: any = price;
@@ -527,7 +546,7 @@ class Shopping extends Services {
     });
 
     const sortMobileMenu: NodeListOf<Element> =
-      document.querySelectorAll(".sortMobileMenu li");
+    this.selectAllHTMLItems(".sortMobileMenu li");
 
     Array.from(sortMobileMenu).map((item) => {
       item.addEventListener("click", () => {
@@ -535,6 +554,51 @@ class Shopping extends Services {
         shopping.handleFilterSortBy(sort.innerHTML);
       });
     });
+  }
+
+  multipleCriteria(): void {
+    const
+      selectAllSizes = this.selectAllHTMLItems(".size"),
+      catchSizeCriteriaOnStorage = this.retrieve("selectedCriteriaSize"),
+      filterSizeByCriteria = Array.from(selectAllSizes)
+        .map((item) => item)
+        .filter(item => item.innerHTML === catchSizeCriteriaOnStorage);
+    
+    filterSizeByCriteria.map((item) => {    
+      item.classList.add("sizeChecked");
+    });
+
+    const
+      selectPrices = this.selectAllHTMLItems(".price"),
+      catchPriceCriteriaOnStorage = this.retrieve("selectedCriteriaPrice"),
+      filterPriceByCriteria = Array.from(selectPrices)
+        .map((item) => item)
+        .filter(item => item.value === catchPriceCriteriaOnStorage);
+
+        console.log("catchPriceCriteriaOnStorage", catchPriceCriteriaOnStorage);
+        console.log("filterPriceByCriteria", filterPriceByCriteria);
+
+      
+      filterPriceByCriteria.map((item) => {    
+        item.classList.add("priceChecked");
+    })
+  }
+
+  applyFilterMenuMobile(): void {
+    const applyBtn = this.selectHTMLItem(".btn-apply") as HTMLInputElement;
+    applyBtn.addEventListener("click", () => {
+      this.reloadPage();
+    })
+  }
+
+  clearFilterMenuMobile(): void {
+    const applyBtn = this.selectHTMLItem(".btn-apply") as HTMLInputElement;
+    applyBtn.addEventListener("click", () => {
+      this.remove("selectedSize");
+      this.remove("selectedPrice");
+      this.remove("selectedProduct");
+      this.remove("SelectColor");
+    })
   }
 }
 
@@ -546,5 +610,7 @@ shopping.handleClickBrandAndResetStorage();
 shopping.showMore();
 shopping.itemCountCart();
 shopping.initializeMenuMobile();
+shopping.applyFilterMenuMobile();
+shopping.multipleCriteria();
 
 document.addEventListener("DOMContentLoaded", initialize.productsList());
